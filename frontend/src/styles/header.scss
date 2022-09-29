@@ -1,0 +1,47 @@
+.app-header {
+  background-color: #026AA7;
+  padding: 3px 0px;
+  font-size: 16px;
+
+  .header-content {
+    max-width: 1200px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .links {
+      a {
+        background-color: rgba(255, 255, 255, 0.4);
+        padding: 10px 15px;
+        border-radius: 5px;
+        color: white;
+        text-decoration: none;
+        display: block;
+
+        span {
+          margin-left: 10px;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .page-name {
+      font-family: 'Pacifico', cursive;
+      color: white;
+      font-size: 20px;
+    }
+
+    .user-icon {
+      img {
+        height: 40px;
+        width: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+        cursor: pointer;
+        display: none;
+      }
+
+    }
+  }
+}
