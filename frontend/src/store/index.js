@@ -1,8 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import counterComp from "./counter";
+import notificationData from "./notificationData";
+import userData from "./userData";
 
 export default configureStore({
   reducer: {
-    counter: counterComp
+    user: userData,
+    notification: notificationData
   },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
 })

@@ -1,27 +1,24 @@
 const mongoose = require('mongoose');
 
-const TaskSchema = new mongoose.Schema({
-  title: {
+const CommentSchema = new mongoose.Schema({
+  content: {
     type: String,
     required: true
   },
-  board: {
+  date: {
+    type: Date,
+    default: () => new Date()
+  },
+  card: {
     type: mongoose.Types.ObjectId,
     required: true,
-    ref: "board"
+    ref: "card"
   },
   author: {
     type: mongoose.Types.ObjectId,
     required: true,
     ref: "user"
-  },
-  content: {
-    type: String,
-    required: true
-  },
-  color: {
-    type: String
   }
 }, { versionKey: false })
 
-module.exports = mongoose.model('task', TaskSchema);
+module.exports = mongoose.model('comment', CommentSchema);

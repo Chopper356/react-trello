@@ -1,0 +1,149 @@
+.board_page {
+  background-color: #0078BD;
+  min-height: calc(100vh - 50px);
+  position: relative;
+  overflow-x: hidden;
+
+
+  .page_content {
+    max-width: calc(100vw - 150px);
+    margin: auto;
+    padding: 15px;
+    border-radius: 5px;
+
+    .page_header {
+      color: white;
+
+      .text {
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      .menu {
+        position: relative;
+        font-size: 18px;
+        align-items: flex-end;
+        cursor: pointer;
+
+        i {
+          margin-right: 5px;
+          font-size: 20px;
+        }
+      }
+    }
+
+    .tasks_list {
+      overflow-x: auto;
+      padding-bottom: 50px;
+
+      .task {
+        padding: 10px;
+        border-radius: 5px;
+        margin-right: 20px;
+        min-width: 300px;
+        height: fit-content;
+
+        background-color: #f0f0f0;
+
+        .task_header {
+          font-size: 18px;
+          font-weight: 600;
+
+          i {
+            cursor: pointer;
+          }
+        }
+
+        .content {
+          .card_item {
+            background-color: white;
+            border-radius: 5px;
+            font-size: 18px;
+            box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+          }
+        }
+
+        .task_footer {
+          .show_actions {
+            color: #a5a5a5;
+            cursor: pointer;
+          }
+
+          form {
+            textarea {
+              box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
+              min-height: 80px;
+              max-height: 300px;
+              border: none;
+              outline: none;
+              border-radius: 5px;
+              padding: 5px;
+            }
+
+            input {
+              border: 1px solid rgb(207, 207, 207);
+              outline: none;
+              box-shadow: inset 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
+              background-color: #eeeeee;
+              padding: 5px;
+              border-radius: 5px;
+
+              &::placeholder {
+                color: #a5a5a5;
+              }
+            }
+
+            .card_add_actions {
+              button {
+                background-color: #57AD41;
+                border-radius: 5px;
+                color: white;
+                border: none;
+                padding: 5px 15px;
+                font-weight: 600;
+              }
+
+              i {
+                font-size: 22px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+              }
+
+              span {
+                display: flex;
+              }
+            }
+          }
+        }
+      }
+
+      .lists_empty {
+        font-size: 30px;
+        color: #004a75;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+      }
+    }
+  }
+
+  @media (max-width: 500px) {
+    .page_content {
+      max-width: unset;
+    }
+
+    .tasks_list {
+      overflow-x: hidden !important;
+      display: block !important;
+
+      .task {
+        max-width: unset;
+        min-width: unset !important;
+        margin-right: unset !important;
+        margin-bottom: 15px;
+      }
+    }
+  }
+}

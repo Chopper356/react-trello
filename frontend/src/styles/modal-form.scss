@@ -1,0 +1,36 @@
+.members-checkbox {
+  font-size: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.03);
+
+  img {
+    height: 30px;
+    width: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .form-check-label {
+    font-weight: 500;
+  }
+}
+
+
+.delete-content {
+  color: #e74c3c;
+
+  .delete-icon {
+    font-size: 60px;
+    text-align: center;
+    display: block;
+  }
+
+  div {
+    font-size: 20px;
+    text-align: center;
+  }
+
+}

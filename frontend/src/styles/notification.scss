@@ -1,0 +1,82 @@
+.notification-component {
+  position: fixed;
+  top: 25px;
+  margin: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transform: translateY(-200px);
+  transition: all .3s;
+  opacity: 0;
+  z-index: 2000;
+
+  .content {
+    background-color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+
+    i {
+      font-size: 22px;
+
+      &.error {
+        color: #e74c3c;
+      }
+
+      &.warning {
+        color: #e67e22;
+      }
+
+      &.succesfull {
+        color: #4cd137;
+      }
+    }
+
+    .notification-text {
+      margin: 0px 20px;
+
+      &.error {
+        .title {
+          color: #c0392b;
+        }
+
+        .text {
+          color: #e74c3c;
+        }
+      }
+
+      &.warning {
+        .title {
+          color: #cd6133;
+        }
+
+        .text {
+          color: #ff793f;
+        }
+      }
+
+      &.succesfull {
+        .title {
+          color: #44bd32;
+        }
+
+        .text {
+          color: #4cd137;
+        }
+      }
+    }
+
+    .fa-times {
+      cursor: pointer;
+    }
+  }
+
+  &.show {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}

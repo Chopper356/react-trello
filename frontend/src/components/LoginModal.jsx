@@ -1,20 +1,23 @@
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
-import Form from 'react-bootstrap/Form';
-import axios from "axios";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
+import Form from "react-bootstrap/Form";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setToken, getUser } from "../store/userData";
 
 import "../styles/modal.scss";
 import AuthService from "../lib/AuthService";
 
 function LoginModal(props) {
+  const dispatch = useDispatch()
+
   const [modalTitle, setModalTitle] = useState("SignIn");
   const [modalLogin, setModalLogin] = useState({ email: "", password: "" });
   const [modalReg, setModalReg] = useState({ name: "", email: "", password: "", password2: "" });
 
-  let handleChangeLogin = (e) => {
+  const handleChangeLogin = (e) => {
     const { name, value } = e.target;
     setModalLogin(prevState => ({
       ...prevState,
@@ -22,7 +25,7 @@ function LoginModal(props) {
     }));
   };
 
-  let handleChangeReg = (e) => {
+  const handleChangeReg = (e) => {
     const { name, value } = e.target;
     setModalReg(prevState => ({
       ...prevState,
@@ -30,27 +33,24 @@ function LoginModal(props) {
     }));
   };
 
-  let signIn = async (event) => {
+  const signIn = async (event) => {
     event.preventDefault();
-    let data = await AuthService.signIn(modalLogin);
+    const { data } = await AuthService.signIn(modalLogin);
 
-    if (data.status === 200) {
-      props.onHide();
-    } else {
-      console.log(data)
-    }
+    dispatch(setToken(data.token));
+    dispatch(getUser());
+    setModalTitle("SignIn");
+    props.onHide();
   };
 
-  let signUp = (event) => {
+  const signUp = async (event) => {
     event.preventDefault();
-    axios.post("/auth/signup", modalReg).then(({ data }) => {
-      console.log(data)
-      if (data.status === 200) {
-        props.onHide();
-      }
-    }).catch((err) => {
-      console.log(err)
-    })
+    const { data } = await AuthService.signUp(modalReg);
+
+    dispatch(setToken(data.token));
+    dispatch(getUser());
+    setModalTitle("SignIn");
+    props.onHide();
   };
 
   return (
@@ -85,8 +85,8 @@ function LoginModal(props) {
             </Modal.Body>
 
             <Modal.Footer>
-              <Button variant='danger' onClick={props.onHide}>Close</Button>
-              <Button type='submit'>Submit</Button>
+              <Button variant="danger" onClick={props.onHide}>Close</Button>
+              <Button type="submit">Submit</Button>
             </Modal.Footer>
           </Form>
         </Tab>
@@ -102,7 +102,7 @@ function LoginModal(props) {
                 <Form.Label>Email address</Form.Label>
                 <Form.Control type="email" onInput={handleChangeReg} name="email" placeholder="Enter email" required />
                 <Form.Text className="text-muted">
-                  We'll never share your email with anyone else.
+                  We"ll never share your email with anyone else.
                 </Form.Text>
               </Form.Group>
 
@@ -116,8 +116,8 @@ function LoginModal(props) {
               </Form.Group>
 
               <Modal.Footer>
-                <Button variant='danger' onClick={props.onHide}>Close</Button>
-                <Button type='submit'>Submit</Button>
+                <Button variant="danger" onClick={props.onHide}>Close</Button>
+                <Button type="submit">Submit</Button>
               </Modal.Footer>
             </Modal.Body>
           </Form>

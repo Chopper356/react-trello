@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+  trello_backend:
+    command: npm run dev
+    container_name: trello_backend
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=prod
+    ports:
+      - 3001:3001 
+    depends_on:
+      - mongo
+  trello_frontend:
+    command: npm start
+    container_name: trello_frontend
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - 3000:3000 
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - ./data:/data/db
+    ports:
+      - 27017:27017 
+

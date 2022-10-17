@@ -1,5 +1,5 @@
 .app-header {
-  background-color: #026AA7;
+  background-color: #01598b;
   padding: 3px 0px;
   font-size: 16px;
 
@@ -33,15 +33,42 @@
     }
 
     .user-icon {
-      img {
+      .user-img {
         height: 40px;
         width: 40px;
         object-fit: cover;
         border-radius: 50%;
         cursor: pointer;
-        display: none;
+        background-color: white;
+        text-align: center;
       }
 
+      .user {
+        display: flex;
+        align-items: center;
+
+        .name {
+          margin-right: 10px;
+          font-weight: 500;
+          color: white;
+        }
+      }
+
+    }
+  }
+
+  @media (max-width: 500px) {
+    padding: 0px 10px;
+
+    .page-name {
+      display: none;
+    }
+
+    .links {
+      a {
+        padding: 8px 15px !important;
+        margin: 5px 0px;
+      }
     }
   }
 }
