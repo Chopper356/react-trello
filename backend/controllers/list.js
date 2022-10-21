@@ -17,7 +17,7 @@ module.exports = {
       data.title = htmlspecialchars(data.title);
       const new_list = await List.create(data);
 
-      res.send({ new_list });
+      res.send(new_list);
     }
     catch (error) {
       res.status(500).send({ error: "Server error!" });
@@ -31,7 +31,7 @@ module.exports = {
         Card.deleteMany({ list: req.params.id })
       ])
 
-      res.send({ message: "List deleted" });
+      res.send({ message: "List deleted", deleted_id: req.params.id });
     }
     catch (error) {
       res.status(500).send({ error: "Server error!" });
@@ -42,9 +42,9 @@ module.exports = {
     try {
       const data = htmlspecialchars(req.body.title);
 
-      const new_data = await List.updateOne({ _id: req.params.id }, { title: data });
+      const new_data = await List.findOneAndUpdate({ _id: req.params.id }, { title: data }, { new: true });
 
-      res.send({ new_data });
+      res.send(new_data);
     }
     catch (error) {
       console.log(error)

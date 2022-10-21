@@ -3,7 +3,7 @@ const config = require('../config/dev.json');
 
 module.exports = (req, res, next) => {
   try {
-    const token = req.headers.auth_token;
+    const token = req.headers.authorization;
 
     if (!token) {
       throw "No token!";

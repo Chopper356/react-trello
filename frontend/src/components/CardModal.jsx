@@ -1,35 +1,42 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import dayjs from "dayjs";
 import "../styles/card-modal.scss";
 
-import CardsService from "../lib/CardsService";
 import CommentService from "../lib/CommentsService";
 import ActivityService from "../lib/ActivityService";
 import Menu from "./DropdownMenu";
+import { editCard, deleteCard } from "../store/boardData";
 
-function CardModal(props) {
+function CardModal({ listId, cardId, show, onClose }) {
+  const dispatch = useDispatch();
   const { id } = useParams();
   const userData = useSelector((state) => state.user);
-  const [card, setCard] = useState(props.card);
+  const lists = useSelector((state) => state.board.lists);
+
+  const card = useMemo(() => {
+    return lists.find((item) => item._id === listId)
+      .cards.find((item) => item._id === cardId);
+  }, [listId, cardId, lists]);
+
   const [showDetails, setShowDetails] = useState(true);
   const [editDesc, setEditDesc] = useState(false);
+  const [editValues, setEditValues] = useState({ title: card.title, description: card.description });
   const [deleteTab, setDeleteTab] = useState(false);
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState("");
   const [activity, setActivity] = useState([]);
 
   const descriptionSave = async () => {
-    await CardsService.edit({ id: card._id, card: { content: card.title, description: card.description } });
-    props.editCard({ ...card });
+    dispatch(editCard({ id: card._id, data: { title: card.title, description: editValues.description } }))
     setEditDesc(false);
-    setActivity([...activity, await ActivityService.create({ content: "qwe", action: `Edit ${card.title} description`, author: userData.user._id, card: card._id })]);
+    setActivity([...activity, await ActivityService.create({ action: `Edit ${card.title} description`, author: userData._id, card: card._id })]);
   };
 
   const sendComment = async () => {
-    const new_comment = await CommentService.create({ author: userData.user._id, card: card._id, list: card.list, content: comment });
+    const new_comment = await CommentService.create({ author: userData._id, card: card._id, list: card.list, content: comment });
 
     setComments([...comments, new_comment]);
   };
@@ -42,10 +49,9 @@ function CardModal(props) {
     cardInfo();
   }, [card._id, id]);
 
-  const deleteCard = async () => {
-    await CardsService.delete(card._id);
-    props.delete(card);
-    props.onClose();
+  const cardDelete = async () => {
+    onClose();
+    dispatch(deleteCard(card));
   }
 
   const deleteComment = async (id) => {
@@ -55,8 +61,8 @@ function CardModal(props) {
 
   return (
     <Modal
-      show={props.show}
-      onHide={props.onClose}
+      show={show}
+      onHide={onClose}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       centered
@@ -92,7 +98,7 @@ function CardModal(props) {
                     <span className="ms-3 text-decoration-underline" onClick={() => setEditDesc(true)}>Edit the description</span>
                   </span>
                   : editDesc ? <div className="form-floating flex-grow-1">
-                    <textarea className="form-control" onChange={(event) => setCard({ ...card, description: event.target.value })} value={card.description} placeholder="Leave a description here" id="floatingTextarea2"></textarea>
+                    <textarea className="form-control" onChange={(event) => setEditValues({ ...editValues, description: event.target.value })} value={editValues.description} placeholder="Leave a description here" id="floatingTextarea2"></textarea>
                     <label htmlFor="floatingTextarea2">Description</label>
 
                     <div className="d-flex align-items-center mt-2">
@@ -126,7 +132,7 @@ function CardModal(props) {
               </div>
 
               <div className="comments-content d-flex">
-                <span className="user-image me-2 fs-4">{userData.user.name[0]}</span>
+                <span className="user-image me-2 fs-4">{userData.name[0]}</span>
 
                 <div className="form-floating flex-grow-1">
                   <textarea className="form-control" onChange={(event) => setComment(event.target.value)} placeholder="Leave a comment here" id="floatingTextarea2"></textarea>
@@ -205,7 +211,7 @@ function CardModal(props) {
 
             <div className="delete-actions">
               <button type="button" className="btn btn-primary me-3" onClick={() => setDeleteTab(false)}>Cancel</button>
-              <button type="button" className="btn btn-danger" onClick={deleteCard}>Delete</button>
+              <button type="button" className="btn btn-danger" onClick={cardDelete}>Delete</button>
             </div>
           </div>
         </div>

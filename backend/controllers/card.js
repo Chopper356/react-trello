@@ -18,7 +18,7 @@ module.exports = {
       const cardsLength = await Card.countDocuments({ list: data.list });
 
       data.title = htmlspecialchars(data.title);
-      data.index = cardsLength > 0 ? cardsLength + 1 : 0;
+      data.index = cardsLength > 0 ? cardsLength : 0;
       const card = await Card.create(data);
 
       res.send(card);
@@ -31,13 +31,16 @@ module.exports = {
 
   async delete(req, res) {
     try {
+      const card = await Card.findOne({ _id: req.params.id });
+
+      await Card.updateMany({ list: card.list.toString(), index: { $gte: card.index } }, { $inc: { index: -1 } });
+
       await Promise.all([
         Card.findOneAndRemove({ _id: req.params.id }),
-        Activity.deleteMany({ card: req.params.id }),
         Comment.deleteMany({ card: req.params.id })
       ])
 
-      res.send({ message: "Card deleted!" });
+      res.send({ id: req.params.id });
     }
     catch (error) {
       res.status(500).send({ error: "Server error!" });
@@ -46,13 +49,13 @@ module.exports = {
 
   async edit(req, res) {
     try {
-      let { content, description } = req.body;
-      content = htmlspecialchars(content);
+      let { title, description } = req.body;
+      title = htmlspecialchars(title);
       description = htmlspecialchars(description);
 
-      const new_data = await Card.updateOne({ _id: req.params.id }, { content, description });
+      const new_data = await Card.findOneAndUpdate({ _id: req.params.id }, { title, description }, { new: true });
 
-      res.send({ new_data });
+      res.send(new_data);
     }
     catch (error) {
       res.status(500).send({ error: "Server error!" });

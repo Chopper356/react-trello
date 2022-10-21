@@ -1,12 +1,9 @@
 import classNames from "classnames";
 import { useState, useCallback, useEffect } from "react";
-import { useParams, useNavigate } from 'react-router-dom'
-import { useSelector } from "react-redux";
+import { useParams } from 'react-router-dom'
+import { useSelector, useDispatch } from "react-redux";
 
 import styles from "./index.module.scss";
-import ListsService from "../../lib/ListsService";
-import BoardsService from "../../lib/BoardsService";
-import CardsService from "../../lib/CardsService";
 import Menu from "../../components/DropdownMenu";
 import CardCreator from "../../components/CardCreator";
 import CardModal from "../../components/CardModal";
@@ -15,133 +12,74 @@ import ActivityService from "../../lib/ActivityService";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { ChangeMembers, EditBoard, DeleteBoard } from "../../components/forms/BoardForms";
 import { DeleteList, EditList } from "../../components/forms/ListForms";
+import { setNotification } from "../../store/notificationData";
+import { getBoard, createList, moveCard } from "../../store/boardData";
 
 function Board() {
   const userData = useSelector((state) => state.user);
   const { id } = useParams();
-  const navigate = useNavigate();
-  const [board, setBoard] = useState({});
-  const [lists, setLists] = useState([]);
+  // const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const board = useSelector((state) => state.board);
+  const lists = useSelector((state) => state.board.lists);
   const [listInputTitle, setListInputTitle] = useState("");
   const [modal, setModal] = useState(null);
   const [openedCard, setOpenedCard] = useState(null);
   const [selectedList, setSelectedList] = useState(null);
 
-  const getBoards = useCallback(async () => {
-    const { data } = await BoardsService.getData({ id }).catch(error => error.response.status === 403 && navigate("/boards"));
-    setBoard(data.board);
-    setLists(data.lists);
-  }, [id, navigate]);
+  const notification = useCallback((obj) => {
+    dispatch(setNotification(obj));
+  }, [dispatch]);
+
   useEffect(() => {
-    getBoards();
-  }, [getBoards]);
+    dispatch(getBoard(id));
+  }, [dispatch, id]);
 
   const handleChangeTaskInput = (e) => {
     const { value } = e.target;
     setListInputTitle(value);
   };
 
-  const createList = async (event) => {
+  const listCreate = async (event) => {
     event.preventDefault();
-    const { data } = await ListsService.create({
+    dispatch(createList({
       title: listInputTitle,
-      author: userData.user._id,
+      author: userData._id,
       board: board._id
-    });
-    setLists([...lists, data.new_list]);
+    }));
     setListInputTitle("")
-  }
-
-  const editList = (list) => {
-    const newLists = lists.map((item) => {
-      if (item._id === list._id) item.title = list.title;
-      return item;
-    })
-
-    setLists(newLists);
-  }
-
-  const deleteList = (list) => {
-    let new_lists = lists;
-    let list_idx = new_lists.findIndex((item) => item._id === list._id);
-    new_lists.splice(list_idx, 1);
-
-    setLists(new_lists);
-  }
-
-  const addCardToList = (card) => {
-    const newLists = lists.map((list) => {
-      if (list._id === card.list) list.cards.push(card);
-      return list;
-    })
-
-    setLists(newLists);
-  }
-
-  const editCard = (card) => {
-    const newLists = lists.map((list) => {
-      if (list._id === card.list) {
-        const card_idx = list.cards.findIndex((item) => item._id === card._id);
-        list.cards[card_idx] = card;
-      }
-      return list;
-    })
-
-    setLists(newLists);
-  }
-
-  const deleteCard = (card) => {
-    const newLists = lists.map((list) => {
-      if (list._id === card.list) {
-        const card_idx = list.cards.findIndex((item) => item._id === card._id);
-        list.cards.splice(card_idx, 1);
-      }
-      return list;
-    })
-
-    setLists(newLists);
+    notification({ title: "List create successfull!", text: "You have successfully created a list", type: "successfull" });
   }
 
   const onDragEnd = useCallback(async (event) => {
     if (!event.destination || !event.source) return;
-
     const card = lists.find(l => l._id === event.source.droppableId).cards.find(c => c._id === event.draggableId);
-    const cardMoved = { from: "", in: "" }
-
-    const newLists = lists.map((list) => {
-      if (list._id === event.source.droppableId) {
-        list.cards.splice(event.source.index, 1);
-        cardMoved.from = list.title;
-      };
-      if (list._id === event.destination.droppableId) {
-        list.cards.splice(event.destination.index, 0, card);
-        cardMoved.to = list.title;
-      }
-      return list;
-    })
+    const cardMovedFrom = lists.find(l => l._id === event.source.droppableId).title;
+    const cardMovedTo = lists.find(l => l._id === event.destination.droppableId).title;
 
     if (event.destination.droppableId !== event.source.droppableId || event.destination.index !== event.source.index) {
-      await CardsService.move(event.source.droppableId, event.destination.droppableId, { indexFrom: event.source.index, indexTo: event.destination.index, cardId: event.draggableId });
+      dispatch(moveCard({ listIdFrom: event.source.droppableId, listIdTo: event.destination.droppableId, data: { indexFrom: event.source.index, indexTo: event.destination.index, cardId: event.draggableId } }));
       await ActivityService.create({
-        action: `${userData.user.name} moved card: ${card.title} from ${cardMoved.from} in list ${cardMoved.in}`,
-        author: userData.user._id,
+        action: `${userData.name} moved card: ${card.title} from ${cardMovedFrom} in list ${cardMovedTo}`,
+        author: userData._id,
         board: board._id
       });
+      notification({ title: "Card moved!", text: "You have successfully moved the card", type: "successfull" });
     }
 
-    setLists(newLists);
-  }, [lists, userData, board._id]);
+  }, [lists, userData, board._id, dispatch, notification]);
 
   return (
     <div className={classNames(styles.board_page)}>
       {modal === "activity" && <BoardActivityMenu onClose={() => setModal(null)} board={board} />}
-      {modal === "members" && <ChangeMembers onClose={() => setModal(null)} changeMembers={(members) => setBoard({ ...board, members })} board={board} />}
-      {modal === "edit" && <EditBoard onClose={() => setModal(null)} edit={(id, title) => setBoard({ ...board, title })} board={board} />}
+      {modal === "members" && <ChangeMembers onClose={() => setModal(null)} board={board} />}
+      {modal === "edit" && <EditBoard onClose={() => setModal(null)} board={board} />}
       {modal === "delete" && <DeleteBoard onClose={() => setModal(null)} board={board} />}
-      {modal === "edit list" && <EditList onClose={() => setModal(null)} edit={(list) => editList(list)} list={selectedList} />}
-      {modal === "delete list" && <DeleteList onClose={() => setModal(null)} delete={(list) => deleteList(list)} list={selectedList} />}
+      {modal === "edit list" && <EditList onClose={() => setModal(null)} listId={selectedList} />}
+      {modal === "delete list" && <DeleteList onClose={() => setModal(null)} listId={selectedList} />}
 
-      {openedCard && <CardModal show={openedCard} onClose={() => setOpenedCard(null)} card={openedCard} editCard={(card) => editCard(card)} delete={(card) => deleteCard(card)} />}
+      {openedCard && <CardModal show={openedCard} onClose={() => setOpenedCard(null)} listId={openedCard.listId} cardId={openedCard.cardId} />}
 
       <div className={classNames(styles.page_content, "pt-3")}>
         <div className={classNames(styles.page_header, "d-flex justify-content-between")}>
@@ -167,8 +105,8 @@ function Board() {
                           <span className="fw-bold">{list.title}</span>
 
                           <Menu icon={true}>
-                            <span className="dropdown-menu-item" onClick={() => { setSelectedList(list); setModal('edit list') }}>Edit List</span>
-                            <span className="dropdown-menu-item" onClick={() => { setSelectedList(list); setModal('delete list') }}>Delete List</span>
+                            <span className="dropdown-menu-item" onClick={() => { setSelectedList(list._id); setModal('edit list') }}>Edit List</span>
+                            <span className="dropdown-menu-item" onClick={() => { setSelectedList(list._id); setModal('delete list') }}>Delete List</span>
                           </Menu>
                         </div>
                         <div className={classNames(styles.content)}>
@@ -179,7 +117,7 @@ function Board() {
                                   (provided, snapshot) => (
                                     <div
                                       {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef} snapshot={snapshot}
-                                      className={classNames(styles.card_item, "p-2 mb-2")} key={card._id} onClick={() => setOpenedCard(card)}
+                                      className={classNames(styles.card_item, "p-2 mb-2")} key={card._id} onClick={() => { setOpenedCard({ listId: list._id, cardId: card._id }) }}
                                     >
                                       {card.title}
                                     </div>
@@ -190,7 +128,7 @@ function Board() {
                           }
                           {provided.placeholder}
                         </div>
-                        <CardCreator list={list} addCard={addCardToList} />
+                        <CardCreator list={list} />
                       </div>
                     )
                   }
@@ -199,7 +137,7 @@ function Board() {
             }
             <div className={classNames(styles.task)}>
               <div className={classNames(styles.task_footer)}>
-                <form onSubmit={createList}>
+                <form onSubmit={listCreate}>
                   <input type="text" required value={listInputTitle} onChange={handleChangeTaskInput} name="title" className="w-100 mb-2" placeholder="Add a list..." />
                   <div className={classNames(styles.card_add_actions, "d-flex justify-content-between")}>
                     <span>

@@ -25,7 +25,7 @@ function PopupError() {
         {
           notificationData.type === "error" ? <i className={`far fa-exclamation-circle ${notificationData.type}`}></i>
             : notificationData.type === "warning" ? <i className={`far fa-engine-warning ${notificationData.type}`}></i>
-              : notificationData.type === "succesfull" ? <i className={`far fa-check-circle ${notificationData.type}`}></i> : null
+              : notificationData.type === "successfull" ? <i className={`far fa-check-circle ${notificationData.type}`}></i> : null
         }
 
         <div className={`notification-text ${notificationData.type}`}>

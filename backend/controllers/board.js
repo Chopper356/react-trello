@@ -62,9 +62,9 @@ module.exports = {
     try {
       const data = req.body;
 
-      const new_data = await Board.updateOne({ _id: req.params.id }, { title: data.title });
+      const new_data = await Board.findOneAndUpdate({ _id: req.params.id }, { title: data.title }, { new: true });
 
-      res.send({ new_data });
+      res.send(new_data);
     }
     catch (error) {
       res.status(500).send({ error: "Server error!" });
@@ -104,7 +104,7 @@ module.exports = {
   async changeMembers(req, res) {
     try {
       const new_members = req.body;
-      const new_data = await Board.updateOne({ _id: req.params.id }, { members: new_members });
+      const new_data = await Board.findOneAndUpdate({ _id: req.params.id }, { members: new_members }, { new: true });
 
       res.send(new_data);
     }

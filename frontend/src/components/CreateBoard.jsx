@@ -2,31 +2,23 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import "../styles/modal.scss";
-import ActivityService from "../lib/ActivityService"
-import BoardsService from "../lib/BoardsService";
+import { createBoard } from "../store/boardsData";
 import { setNotification } from "../store/notificationData"
 
 function CreateBoard(props) {
-  const userData = useSelector((state) => state.user);
   const [board, setBoard] = useState({ title: "", image: null });
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
 
-  const createBoard = async (event) => {
+  const boardCreate = async (event) => {
     event.preventDefault();
-    const { data, status } = await BoardsService.create(board);
 
-    if (status === 200) {
-      props.onHide(false);
-      props.createBoard(data);
-      dispatch(setNotification({ title: "Succesfull!", text: "Board created successfully", type: "succesfull" }));
-      await ActivityService.create({ action: `${userData.user.name} created board ${data.title}`, author: userData.user._id, board: data._id });
-    } else {
-      console.log(data)
-    }
+    props.onHide(false);
+    dispatch(createBoard(board));
+    dispatch(setNotification({ title: "Successfull!", text: "Board created successfully", type: "successfull" }));
   }
 
   const checkImageSize = (event) => {
@@ -54,7 +46,7 @@ function CreateBoard(props) {
           Create Board
         </Modal.Title>
       </Modal.Header>
-      <Form onSubmit={createBoard}>
+      <Form onSubmit={boardCreate}>
         <Modal.Body>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Title</Form.Label>

@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { removeToken } from "../store/userData";
@@ -10,18 +10,18 @@ import DropdownMenu from "./DropdownMenu";
 
 function Header() {
   const dispatch = useDispatch();
-  const userData = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user);
   const [modalShow, setModalShow] = useState(false);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     dispatch(removeToken());
-  }
+  }, [dispatch]);
 
-  const User = () => {
-    return (userData.user.name) ?
+  const User = useCallback(() => {
+    return (user.name) ?
       <div className="user">
-        <span className="name">{userData.user.name}</span>
-        <DropdownMenu menuContent={<span className="user-img fs-4">{userData.user.name[0]}</span>}>
+        <span className="name">{user.name}</span>
+        <DropdownMenu menuContent={<span className="user-img fs-4">{user.name[0]}</span>}>
           <span className="dropdown-menu-item" onClick={logout}>
             <i className="fas fa-sign-out me-2"></i>
             Logout
@@ -30,7 +30,7 @@ function Header() {
       </div>
       :
       <Button variant="success" onClick={() => setModalShow(true)}>SignIn</Button>
-  }
+  }, [user, logout]);
 
   return (
     <header className="app-header">

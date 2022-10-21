@@ -17,7 +17,6 @@ export const notificationData = createSlice({
     },
 
     removeNotification: (state) => {
-      // state.title = state.text = "";
       state.show = false;
     },
   },
@@ -25,4 +24,5 @@ export const notificationData = createSlice({
 
 export const { setNotification, removeNotification } = notificationData.actions;
 
-export default notificationData.reducer
+export default notificationData.reducer;
+export const qwe = notificationData.caseReducers;

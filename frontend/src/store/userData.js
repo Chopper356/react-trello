@@ -12,19 +12,22 @@ export const getUser = createAsyncThunk(
 export const userData = createSlice({
   name: "user",
   initialState: {
-    user: {},
-
+    _id: "",
+    name: "",
+    email: ""
   },
   reducers: {
     setToken: (state, action) => {
-      instance.defaults.headers.common["auth_token"] = action.payload;
+      instance.defaults.headers.common["Authorization"] = action.payload;
       localStorage.token = action.payload;
     },
 
     removeToken: (state) => {
-      delete instance.defaults.headers.common["auth_token"];
+      delete instance.defaults.headers.common["Authorization"];
       localStorage.removeItem("token");
-      state.user = {};
+      state._id = "";
+      state.name = "";
+      state.email = "";
     },
   },
   extraReducers: {
@@ -32,7 +35,9 @@ export const userData = createSlice({
       state.error = null;
     },
     [getUser.fulfilled]: (state, action) => {
-      state.user = action.payload.data.user;
+      state.name = action.payload.data.user.name;
+      state.email = action.payload.data.user.email;
+      state._id = action.payload.data.user._id;
     },
   },
 })

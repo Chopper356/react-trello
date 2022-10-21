@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import "../../styles/modal-form.scss";
 import ModalForm from "../ModalForm";
@@ -8,15 +8,22 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import UsersService from "../../lib/UsersService";
-import BoardsService from "../../lib/BoardsService";
 import ActivityService from "../../lib/ActivityService";
 import Avatar from "../Avatar";
+import { editBoard, deleteBoard, changeMembers } from "../../store/boardData";
+import { setNotification } from "../../store/notificationData";
 
-export const ChangeMembers = ({ board, onClose, changeMembers }) => {
+export const ChangeMembers = ({ onClose }) => {
+  const dispatch = useDispatch();
   const userData = useSelector((state) => state.user);
+  const board = useSelector((state) => state.board);
   const { id } = useParams();
   const [users, setUsers] = useState([]);
   const timeout = useRef(null);
+
+  const notification = useCallback((obj) => {
+    dispatch(setNotification(obj));
+  }, [dispatch]);
 
   const searchUsers = (value) => {
     if (timeout.current) {
@@ -40,10 +47,10 @@ export const ChangeMembers = ({ board, onClose, changeMembers }) => {
 
   const submit = async () => {
     const selectedUsers = users.filter((item) => item.selected);
-    await BoardsService.changeMembers({ id, users: selectedUsers });
-    await ActivityService.create({ action: `${userData.user.name} changed members`, author: userData.user._id, board: id });
-    changeMembers(selectedUsers.map(item => item._id));
+    dispatch(changeMembers({ id, users: selectedUsers }));
+    await ActivityService.create({ action: `${userData.name} changed members`, author: userData._id, board: id });
     onClose();
+    notification({ title: "Change board members!", text: "You have successfully changed board members", type: "successfull" });
   }
 
   return (
@@ -91,19 +98,26 @@ export const ChangeMembers = ({ board, onClose, changeMembers }) => {
   )
 }
 
-export const EditBoard = (props) => {
-  const [title, setTitle] = useState(props.board.title);
+export const EditBoard = ({ onClose }) => {
+  const dispatch = useDispatch();
+  const board = useSelector((state) => state.board);
+
+  const [changedTitle, setChangedTitle] = useState(board.title);
+
+  const notification = useCallback((obj) => {
+    dispatch(setNotification(obj));
+  }, [dispatch]);
 
   const submit = async () => {
-    await BoardsService.edit({ id: props.board._id, title });
-    props.edit(props.board._id, title);
-    props.onClose();
+    dispatch(editBoard({ id: board._id, title: changedTitle }));
+    onClose();
+    notification({ title: "Edit board!", text: "You have successfully edited this board", type: "successfull" });
   }
 
   return (
     <ModalForm
       show={true}
-      onHide={() => props.onClose()}
+      onHide={() => onClose()}
       title="Edit Board">
 
       <Modal.Body>
@@ -113,15 +127,15 @@ export const EditBoard = (props) => {
             aria-label="Small"
             aria-describedby="inputGroup-sizing-sm"
             placeholder="Search..."
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            value={changedTitle}
+            onChange={(event) => setChangedTitle(event.target.value)}
             className="mb-4"
           />
         </Form.Group>
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="danger" onClick={() => props.onClose()}>Close</Button>
+        <Button variant="danger" onClick={() => onClose()}>Close</Button>
         <Button type="submit" onClick={submit}>Submit</Button>
       </Modal.Footer>
 
@@ -129,30 +143,39 @@ export const EditBoard = (props) => {
   )
 }
 
-export const DeleteBoard = (props) => {
+export const DeleteBoard = ({ onClose }) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const board = useSelector((state) => state.board);
+
+  const notification = useCallback((obj) => {
+    dispatch(setNotification(obj));
+  }, [dispatch]);
 
   const submit = async () => {
-    await BoardsService.delete(props.board._id);
-    props.onClose();
-    if (props.deleteBoard) props.deleteBoard(props.board);
+    dispatch(deleteBoard(board._id));
+    onClose();
     navigate("/boards");
+    notification({ title: "Board deleted!", text: "You have successfully deleted board", type: "successfull" });
   }
 
   return (
     <ModalForm
       show={true}
-      onHide={() => props.onClose()}>
+      onHide={() => onClose()}>
 
-      <Modal.Body>
-        <div className="delete-content">
-          <i className="far fa-exclamation-circle delete-icon"></i>
-          <div>Do you really want to delete board: {props.board.title}</div>
-        </div>
-      </Modal.Body>
+      {
+        board &&
+        <Modal.Body>
+          <div className="delete-content">
+            <i className="far fa-exclamation-circle delete-icon"></i>
+            <div>Do you really want to delete board: {board.title}</div>
+          </div>
+        </Modal.Body>
+      }
 
       <Modal.Footer>
-        <Button variant="danger" onClick={() => props.onClose()}>Close</Button>
+        <Button variant="danger" onClick={() => onClose()}>Close</Button>
         <Button type="submit" onClick={submit}>Delete</Button>
       </Modal.Footer>
 
