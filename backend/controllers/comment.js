@@ -30,7 +30,7 @@ module.exports = {
 
   async delete(req, res) {
     try {
-      await Comment.deleteOne({ _id: req.params.id });
+      await Comment.destroy({ where: { _id: req.params.id } });
 
       res.send({ message: "Comment deleted" });
     }
@@ -41,11 +41,28 @@ module.exports = {
 
   async getAll(req, res) {
     try {
-      const comments = await Comment.find({ card: req.params.id }).populate("author", "name");
+      const commentsData = await Comment.findAll({
+        where: {
+          card: req.params.id
+        },
+        include: {
+          attributes: { exclude: ["password"] },
+          model: User,
+          as: "user"
+        }
+      });
+      const comments = [];
+
+      commentsData.forEach((comment) => {
+        comment.author = comment.user;
+        delete comment.dataValues.user;
+        comments.push(comment.dataValues);
+      });
 
       res.send(comments);
     }
     catch (error) {
+      console.log(error)
       res.status(500).send({ error: "Server error!" });
     }
   },

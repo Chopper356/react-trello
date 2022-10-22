@@ -16,6 +16,8 @@ module.exports = {
 
       data.title = htmlspecialchars(data.title);
       const new_list = await List.create(data);
+      new_list.dataValues.cards = [];
+      console.log(new_list)
 
       res.send(new_list);
     }
@@ -26,10 +28,7 @@ module.exports = {
 
   async delete(req, res) {
     try {
-      await Promise.all([
-        List.findOneAndRemove({ _id: req.params.id }),
-        Card.deleteMany({ list: req.params.id })
-      ])
+      List.destroy({ where: { _id: req.params.id }, cascade: true });
 
       res.send({ message: "List deleted", deleted_id: req.params.id });
     }
@@ -42,9 +41,9 @@ module.exports = {
     try {
       const data = htmlspecialchars(req.body.title);
 
-      const new_data = await List.findOneAndUpdate({ _id: req.params.id }, { title: data }, { new: true });
+      const new_data = await List.update({ title: data }, { where: { _id: req.params.id }, returning: true });
 
-      res.send(new_data);
+      res.send(new_data[1][0].dataValues);
     }
     catch (error) {
       console.log(error)

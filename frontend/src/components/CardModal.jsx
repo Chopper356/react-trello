@@ -47,6 +47,7 @@ function CardModal({ listId, cardId, show, onClose }) {
       setActivity(await ActivityService.cardActivity(id, card._id));
     }
     cardInfo();
+    console.log(activity)
   }, [card._id, id]);
 
   const cardDelete = async () => {
@@ -74,7 +75,7 @@ function CardModal({ listId, cardId, show, onClose }) {
           <span className="card-title">
             {card.title}
             <br />
-            <span className="list-name fs-6 fw-normal">in list <span className="text-decoration-underline">Aboba</span></span>
+            <span className="list-name fs-6 fw-normal">in list <span className="text-decoration-underline">{lists.find((item) => item._id === card.list).title}</span></span>
           </span>
 
           <span className="mobile-menu">

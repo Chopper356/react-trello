@@ -1,22 +1,34 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require("../database");
 
-const BoardSchema = new mongoose.Schema({
+const User = require("./user");
+
+const Board = sequelize.define('Board', {
+  _id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false
+  },
   title: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
   author: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "user"
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: "_id"
+    }
   },
-  members: [{
-    type: mongoose.Types.ObjectId,
-    ref: "user"
-  }],
+  members: {
+    type: DataTypes.ARRAY({ type: DataTypes.INTEGER }),
+    defaultValue: []
+  },
   image: {
-    type: String
+    type: DataTypes.STRING
   }
-}, { versionKey: false })
+});
 
-module.exports = mongoose.model('board', BoardSchema);
+module.exports = Board;

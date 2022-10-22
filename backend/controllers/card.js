@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+const sequelize = require("../database");
 const Card = require('../models/card');
 const List = require('../models/list');
 const Comment = require('../models/comment');
@@ -15,7 +17,7 @@ module.exports = {
         return res.status(500).send({ error: "List is not defined!" });
       }
 
-      const cardsLength = await Card.countDocuments({ list: data.list });
+      const cardsLength = await Card.count({ where: { list: data.list } });
 
       data.title = htmlspecialchars(data.title);
       data.index = cardsLength > 0 ? cardsLength : 0;
@@ -31,14 +33,11 @@ module.exports = {
 
   async delete(req, res) {
     try {
-      const card = await Card.findOne({ _id: req.params.id });
+      const card = await Card.findOne({ where: { _id: req.params.id } });
 
-      await Card.updateMany({ list: card.list.toString(), index: { $gte: card.index } }, { $inc: { index: -1 } });
+      await Card.update({ index: sequelize.literal('index-1') }, { where: { list: card.list, index: { [Op.gte]: card.index } } });
 
-      await Promise.all([
-        Card.findOneAndRemove({ _id: req.params.id }),
-        Comment.deleteMany({ card: req.params.id })
-      ])
+      await Card.destroy({ where: { _id: req.params.id } });
 
       res.send({ id: req.params.id });
     }
@@ -53,9 +52,9 @@ module.exports = {
       title = htmlspecialchars(title);
       description = htmlspecialchars(description);
 
-      const new_data = await Card.findOneAndUpdate({ _id: req.params.id }, { title, description }, { new: true });
+      const new_data = await Card.update({ title, description }, { where: { _id: req.params.id }, returning: true });
 
-      res.send(new_data);
+      res.send(new_data[1][0].dataValues);
     }
     catch (error) {
       res.status(500).send({ error: "Server error!" });
@@ -67,9 +66,9 @@ module.exports = {
       const body = req.body;
 
       await Promise.all([
-        Card.updateMany({ list: req.params.from, index: { $gte: body.indexFrom } }, { $inc: { index: -1 } }),
-        Card.updateMany({ list: req.params.to, index: { $gte: body.indexTo } }, { $inc: { index: 1 } }),
-        Card.updateOne({ _id: body.cardId }, { list: req.params.to, index: body.indexTo })
+        Card.update({ index: sequelize.literal('index-1') }, { where: { list: req.params.from, index: { [Op.gte]: body.indexFrom } } }),
+        Card.update({ index: sequelize.literal('index+1') }, { where: { list: req.params.to, index: { [Op.gte]: body.indexTo } } }),
+        Card.update({ list: req.params.to, index: body.indexTo }, { where: { _id: body.cardId } })
       ]);
 
       res.send({ message: "Moved success" });

@@ -54,9 +54,9 @@ function Board() {
 
   const onDragEnd = useCallback(async (event) => {
     if (!event.destination || !event.source) return;
-    const card = lists.find(l => l._id === event.source.droppableId).cards.find(c => c._id === event.draggableId);
-    const cardMovedFrom = lists.find(l => l._id === event.source.droppableId).title;
-    const cardMovedTo = lists.find(l => l._id === event.destination.droppableId).title;
+    const card = lists.find(l => l._id.toString() === event.source.droppableId).cards.find(c => c._id.toString() === event.draggableId);
+    const cardMovedFrom = lists.find(l => l._id.toString() === event.source.droppableId).title;
+    const cardMovedTo = lists.find(l => l._id.toString() === event.destination.droppableId).title;
 
     if (event.destination.droppableId !== event.source.droppableId || event.destination.index !== event.source.index) {
       dispatch(moveCard({ listIdFrom: event.source.droppableId, listIdTo: event.destination.droppableId, data: { indexFrom: event.source.index, indexTo: event.destination.index, cardId: event.draggableId } }));
@@ -97,7 +97,7 @@ function Board() {
           <div className={classNames(styles.tasks_list, "d-flex mt-3")}>
             {
               lists.length ? lists.map((list) => (
-                < Droppable droppableId={list._id} key={list._id + Date.now()} >
+                <Droppable droppableId={list._id.toString()} key={list._id + Date.now()} >
                   {
                     (provided) => (
                       <div className={classNames(styles.task)} {...provided.droppableProps} ref={provided.innerRef}>
@@ -112,7 +112,7 @@ function Board() {
                         <div className={classNames(styles.content)}>
                           {
                             list.cards.map((card, index) => (
-                              <Draggable key={card._id} draggableId={card._id} index={index}>
+                              <Draggable key={card._id} draggableId={card._id.toString()} index={index}>
                                 {
                                   (provided, snapshot) => (
                                     <div

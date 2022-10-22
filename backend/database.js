@@ -1,9 +1,21 @@
-const mongoose = require('mongoose');
-const config = require('./config/dev.json');
+const { Sequelize } = require('sequelize');
 
-mongoose.connect(config.mongo, {
-	useNewUrlParser: true,
-	useUnifiedTopology: true
-}).then(() => {
-	console.log("MongoDB connected!")
+const sequelize = new Sequelize('trello', 'postgres', '', {
+	host: 'localhost',
+	dialect: 'postgres'
 });
+
+
+const connect = async () => {
+	try {
+		await sequelize.authenticate();
+		// await sequelize.sync({ force: true });
+		console.log('Connection has been established successfully.');
+	} catch (error) {
+		console.error('Unable to connect to the database:', error);
+	}
+}
+
+connect();
+
+module.exports = sequelize;

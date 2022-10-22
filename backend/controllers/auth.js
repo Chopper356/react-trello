@@ -23,20 +23,22 @@ module.exports = {
 
 	async signIn(req, res) {
 		try {
-			const user = req.body;
-			const findUser = await User.findOne({ email: user.email });
+			const { email, password } = req.body;
+			const user = await User.findOne({ where: { email } });
 
-			if (!findUser) {
+			console.log(user)
+
+			if (!user) {
 				return res.status(500).send({ error: "Incorrect email" });
 			}
 
-			const passdecode = await bcrypt.compare(user.password, findUser.password)
+			const pass_decode = await bcrypt.compare(password, user.password)
 
-			if (!passdecode) {
+			if (!pass_decode) {
 				return res.status(500).send({ error: "Incorrect password" });
 			}
 
-			const token = jwt.sign({ id: findUser._id }, config.jwt);
+			const token = jwt.sign({ id: user._id }, config.jwt);
 			res.send({ token });
 		}
 		catch (error) {

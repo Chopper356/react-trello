@@ -1,0 +1,618 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.5
+-- Dumped by pg_dump version 10.5
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: Activities; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Activities" (
+    action character varying(255),
+    _id integer NOT NULL,
+    author integer,
+    board integer,
+    card integer,
+    date timestamp with time zone,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Activities" OWNER TO postgres;
+
+--
+-- Name: Activities__id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Activities__id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Activities__id_seq" OWNER TO postgres;
+
+--
+-- Name: Activities__id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Activities__id_seq" OWNED BY public."Activities"._id;
+
+
+--
+-- Name: Boards; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Boards" (
+    _id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    author integer NOT NULL,
+    members integer[] DEFAULT ARRAY[]::integer[],
+    image character varying(255),
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Boards" OWNER TO postgres;
+
+--
+-- Name: Boards__id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Boards__id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Boards__id_seq" OWNER TO postgres;
+
+--
+-- Name: Boards__id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Boards__id_seq" OWNED BY public."Boards"._id;
+
+
+--
+-- Name: Cards; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Cards" (
+    _id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    description character varying(255),
+    index integer NOT NULL,
+    author integer NOT NULL,
+    board integer NOT NULL,
+    list integer NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Cards" OWNER TO postgres;
+
+--
+-- Name: Cards__id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Cards__id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Cards__id_seq" OWNER TO postgres;
+
+--
+-- Name: Cards__id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Cards__id_seq" OWNED BY public."Cards"._id;
+
+
+--
+-- Name: Comments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Comments" (
+    _id integer NOT NULL,
+    content character varying(255) NOT NULL,
+    date timestamp with time zone,
+    author integer NOT NULL,
+    card integer NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Comments" OWNER TO postgres;
+
+--
+-- Name: Comments__id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Comments__id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Comments__id_seq" OWNER TO postgres;
+
+--
+-- Name: Comments__id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Comments__id_seq" OWNED BY public."Comments"._id;
+
+
+--
+-- Name: Lists; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Lists" (
+    _id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    author integer NOT NULL,
+    board integer NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Lists" OWNER TO postgres;
+
+--
+-- Name: Lists__id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Lists__id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Lists__id_seq" OWNER TO postgres;
+
+--
+-- Name: Lists__id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Lists__id_seq" OWNED BY public."Lists"._id;
+
+
+--
+-- Name: Users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Users" (
+    _id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."Users" OWNER TO postgres;
+
+--
+-- Name: Users__id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Users__id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Users__id_seq" OWNER TO postgres;
+
+--
+-- Name: Users__id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Users__id_seq" OWNED BY public."Users"._id;
+
+
+--
+-- Name: Activities _id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Activities" ALTER COLUMN _id SET DEFAULT nextval('public."Activities__id_seq"'::regclass);
+
+
+--
+-- Name: Boards _id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Boards" ALTER COLUMN _id SET DEFAULT nextval('public."Boards__id_seq"'::regclass);
+
+
+--
+-- Name: Cards _id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Cards" ALTER COLUMN _id SET DEFAULT nextval('public."Cards__id_seq"'::regclass);
+
+
+--
+-- Name: Comments _id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Comments" ALTER COLUMN _id SET DEFAULT nextval('public."Comments__id_seq"'::regclass);
+
+
+--
+-- Name: Lists _id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Lists" ALTER COLUMN _id SET DEFAULT nextval('public."Lists__id_seq"'::regclass);
+
+
+--
+-- Name: Users _id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users" ALTER COLUMN _id SET DEFAULT nextval('public."Users__id_seq"'::regclass);
+
+
+--
+-- Data for Name: Activities; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Activities" (action, _id, author, board, card, date, "createdAt", "updatedAt") FROM stdin;
+Create card Social in list To Do	1	1	1	\N	2022-10-22 18:10:34.55+00	2022-10-22 18:10:34.55+00	2022-10-22 18:10:34.55+00
+Create card YouTube in list To Do	2	1	1	\N	2022-10-22 18:10:42.042+00	2022-10-22 18:10:42.042+00	2022-10-22 18:10:42.042+00
+Create card Fight Game in list To Do	3	1	1	\N	2022-10-22 18:10:58.414+00	2022-10-22 18:10:58.414+00	2022-10-22 18:10:58.414+00
+Create card Snake in list To Do	4	1	1	\N	2022-10-22 18:11:09.375+00	2022-10-22 18:11:09.375+00	2022-10-22 18:11:09.375+00
+Create card Weather News in list To Do	5	1	1	\N	2022-10-22 18:11:21.331+00	2022-10-22 18:11:21.332+00	2022-10-22 18:11:21.332+00
+Dev1 moved card: Weather News from To Do in list Working	6	1	1	\N	2022-10-22 18:11:24.504+00	2022-10-22 18:11:24.504+00	2022-10-22 18:11:24.504+00
+Dev1 moved card: YouTube from To Do in list Working	7	1	1	\N	2022-10-22 18:11:25.328+00	2022-10-22 18:11:25.328+00	2022-10-22 18:11:25.328+00
+Dev1 moved card: Social from To Do in list Completed	8	1	1	\N	2022-10-22 18:11:26.597+00	2022-10-22 18:11:26.598+00	2022-10-22 18:11:26.598+00
+Dev1 moved card: Snake from To Do in list Completed	9	1	1	\N	2022-10-22 18:11:27.679+00	2022-10-22 18:11:27.679+00	2022-10-22 18:11:27.679+00
+Create card Trello in list Completed	10	1	1	\N	2022-10-22 18:11:36.384+00	2022-10-22 18:11:36.384+00	2022-10-22 18:11:36.384+00
+Create card Card 1 in list Test List 1	11	1	2	\N	2022-10-22 18:12:56.449+00	2022-10-22 18:12:56.449+00	2022-10-22 18:12:56.449+00
+Create card Card 2 in list Test List 1	12	1	2	\N	2022-10-22 18:13:02.23+00	2022-10-22 18:13:02.23+00	2022-10-22 18:13:02.23+00
+Create card Card 3 in list Test List 1	13	1	2	\N	2022-10-22 18:13:04.572+00	2022-10-22 18:13:04.572+00	2022-10-22 18:13:04.572+00
+Create card Card 4 in list Test List 1	14	1	2	\N	2022-10-22 18:13:06.816+00	2022-10-22 18:13:06.816+00	2022-10-22 18:13:06.816+00
+Create card Card 5 in list Test List 1	15	1	2	\N	2022-10-22 18:13:09.477+00	2022-10-22 18:13:09.478+00	2022-10-22 18:13:09.478+00
+Create card Card 6 in list Test List 1	16	1	2	\N	2022-10-22 18:13:12.196+00	2022-10-22 18:13:12.196+00	2022-10-22 18:13:12.196+00
+Create card Card 1.1 in list Test List 2	17	1	2	\N	2022-10-22 18:13:17.996+00	2022-10-22 18:13:17.996+00	2022-10-22 18:13:17.996+00
+Create card Card 2.2 in list Test List 2	18	1	2	\N	2022-10-22 18:13:21.772+00	2022-10-22 18:13:21.772+00	2022-10-22 18:13:21.772+00
+Create card Card 123 in list Test list 3	19	1	2	\N	2022-10-22 18:13:36.334+00	2022-10-22 18:13:36.334+00	2022-10-22 18:13:36.334+00
+Create card Card 4321 in list Test List 4	20	1	2	\N	2022-10-22 18:13:40.527+00	2022-10-22 18:13:40.527+00	2022-10-22 18:13:40.527+00
+Dev1 moved card: Card 5 from Test List 1 in list Test List 2	21	1	2	\N	2022-10-22 18:13:42.386+00	2022-10-22 18:13:42.386+00	2022-10-22 18:13:42.386+00
+Dev1 moved card: Card 2 from Test List 1 in list Test list 3	22	1	2	\N	2022-10-22 18:13:43.405+00	2022-10-22 18:13:43.405+00	2022-10-22 18:13:43.405+00
+Dev1 moved card: Card 1 from Test List 1 in list Test List 4	23	1	2	\N	2022-10-22 18:13:44.653+00	2022-10-22 18:13:44.653+00	2022-10-22 18:13:44.653+00
+Dev1 moved card: Card 4 from Test List 1 in list Test List 2	24	1	2	\N	2022-10-22 18:13:47.06+00	2022-10-22 18:13:47.06+00	2022-10-22 18:13:47.06+00
+Create card Test card 1 in list Testing 1	25	2	3	\N	2022-10-22 18:15:11.333+00	2022-10-22 18:15:11.333+00	2022-10-22 18:15:11.333+00
+Edit Test card 1 description	26	2	\N	17	2022-10-22 18:15:26.38+00	2022-10-22 18:15:26.381+00	2022-10-22 18:15:26.381+00
+Create card Test Card 2 in list Testing 2	27	2	3	\N	2022-10-22 18:16:08.401+00	2022-10-22 18:16:08.401+00	2022-10-22 18:16:08.401+00
+Dev1 changed members	28	1	1	\N	2022-10-22 18:16:42.317+00	2022-10-22 18:16:42.317+00	2022-10-22 18:16:42.317+00
+Dev1 changed members	29	1	1	\N	2022-10-22 18:18:02.252+00	2022-10-22 18:18:02.252+00	2022-10-22 18:18:02.252+00
+Edit Fight Game description	30	1	\N	3	2022-10-22 18:18:14.742+00	2022-10-22 18:18:14.743+00	2022-10-22 18:18:14.743+00
+Edit YouTube description	31	1	\N	2	2022-10-22 18:18:35.925+00	2022-10-22 18:18:35.925+00	2022-10-22 18:18:35.925+00
+\.
+
+
+--
+-- Data for Name: Boards; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Boards" (_id, title, author, members, image, "createdAt", "updatedAt") FROM stdin;
+2	Dev1 Board	1	{}	https://i.ibb.co/rGj0WXY/0bca3300a646.jpg	2022-10-22 18:12:34.699+00	2022-10-22 18:12:34.699+00
+3	Dev2 Test Board	2	{}	https://i.ibb.co/sQHG8dT/2f524cc5b349.gif	2022-10-22 18:14:38.775+00	2022-10-22 18:14:38.775+00
+1	Programming	1	{2,4}	https://i.ibb.co/PQr33c9/b6269deaa2d7.jpg	2022-10-22 18:09:00.043+00	2022-10-22 18:18:02.248+00
+\.
+
+
+--
+-- Data for Name: Cards; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Cards" (_id, title, description, index, author, board, list, "createdAt", "updatedAt") FROM stdin;
+5	Weather News	\N	0	1	1	2	2022-10-22 18:11:21.439+00	2022-10-22 18:11:24.516+00
+1	Social	\N	0	1	1	3	2022-10-22 18:10:34.66+00	2022-10-22 18:11:26.591+00
+4	Snake	\N	1	1	1	3	2022-10-22 18:11:09.386+00	2022-10-22 18:11:27.672+00
+6	Trello	\N	2	1	1	3	2022-10-22 18:11:36.388+00	2022-10-22 18:11:36.388+00
+13	Card 1.1	\N	0	1	2	5	2022-10-22 18:13:17.999+00	2022-10-22 18:13:17.999+00
+14	Card 2.2	\N	1	1	2	5	2022-10-22 18:13:21.777+00	2022-10-22 18:13:21.777+00
+15	Card 123	\N	0	1	2	6	2022-10-22 18:13:36.342+00	2022-10-22 18:13:36.342+00
+16	Card 4321	\N	0	1	2	7	2022-10-22 18:13:40.532+00	2022-10-22 18:13:40.532+00
+11	Card 5	\N	2	1	2	5	2022-10-22 18:13:09.481+00	2022-10-22 18:13:42.38+00
+8	Card 2	\N	1	1	2	6	2022-10-22 18:13:02.236+00	2022-10-22 18:13:43.415+00
+9	Card 3	\N	0	1	2	4	2022-10-22 18:13:04.576+00	2022-10-22 18:13:44.661+00
+7	Card 1	\N	1	1	2	7	2022-10-22 18:12:56.457+00	2022-10-22 18:13:44.662+00
+12	Card 6	\N	1	1	2	4	2022-10-22 18:13:12.199+00	2022-10-22 18:13:47.054+00
+10	Card 4	\N	3	1	2	5	2022-10-22 18:13:06.823+00	2022-10-22 18:13:47.054+00
+17	Test card 1	Test Description	0	2	3	8	2022-10-22 18:15:11.343+00	2022-10-22 18:15:26.376+00
+18	Test Card 2	\N	0	2	3	9	2022-10-22 18:16:08.512+00	2022-10-22 18:16:08.512+00
+3	Fight Game	My Fight Game	0	1	1	1	2022-10-22 18:10:58.558+00	2022-10-22 18:18:14.739+00
+2	YouTube	Yee my YouTube	1	1	1	2	2022-10-22 18:10:42.049+00	2022-10-22 18:18:35.922+00
+\.
+
+
+--
+-- Data for Name: Comments; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Comments" (_id, content, date, author, card, "createdAt", "updatedAt") FROM stdin;
+1	My new comment!	2022-10-22 18:15:35.327+00	2	17	2022-10-22 18:15:35.327+00	2022-10-22 18:15:35.327+00
+2	My new comment 2!	2022-10-22 18:15:38.969+00	2	17	2022-10-22 18:15:38.969+00	2022-10-22 18:15:38.969+00
+3	Starting 25.10.2022	2022-10-22 18:19:17.866+00	1	2	2022-10-22 18:19:17.866+00	2022-10-22 18:19:17.866+00
+\.
+
+
+--
+-- Data for Name: Lists; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Lists" (_id, title, author, board, "createdAt", "updatedAt") FROM stdin;
+1	To Do	1	1	2022-10-22 18:10:01.839+00	2022-10-22 18:10:01.839+00
+2	Working	1	1	2022-10-22 18:10:05.985+00	2022-10-22 18:10:05.985+00
+3	Completed	1	1	2022-10-22 18:10:10.15+00	2022-10-22 18:10:10.15+00
+4	Test List 1	1	2	2022-10-22 18:12:46.704+00	2022-10-22 18:12:46.704+00
+5	Test List 2	1	2	2022-10-22 18:12:51.68+00	2022-10-22 18:12:51.68+00
+6	Test list 3	1	2	2022-10-22 18:13:26.448+00	2022-10-22 18:13:26.448+00
+7	Test List 4	1	2	2022-10-22 18:13:30.919+00	2022-10-22 18:13:30.919+00
+8	Testing 1	2	3	2022-10-22 18:15:00.534+00	2022-10-22 18:15:00.534+00
+9	Testing 2	2	3	2022-10-22 18:15:05.493+00	2022-10-22 18:15:05.493+00
+\.
+
+
+--
+-- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Users" (_id, name, email, password, "createdAt", "updatedAt") FROM stdin;
+1	Dev1	dev1@gmail.com	$2b$08$WwH8Yrb/5M46hwNWiJYMqOJ7uoi4xePzC.d8FcI5Z9pfGrJ69sEqS	2022-10-22 18:08:10.12+00	2022-10-22 18:08:10.12+00
+2	Dev2	dev2@gmail.com	$2b$08$D2LMw/np/UexVSsQDBuxfelPzQ6lmfvMQDMVkCrN8vbFSJz/4EOyu	2022-10-22 18:14:15.867+00	2022-10-22 18:14:15.867+00
+3	Dev3	dev3@gmail.com	$2b$08$dAib29koGxCXbFgE676O2umemYVAIL1ZlhiOqJsLQAN1fGZ.OKuLK	2022-10-22 18:17:13.577+00	2022-10-22 18:17:13.577+00
+4	Dev4	dev4@gmail.com	$2b$08$L.zAVGhb2xrVVpJG0UFqcedu9rCsLVMMn6l3u0IF8uK11GkNEa1we	2022-10-22 18:17:30.824+00	2022-10-22 18:17:30.824+00
+\.
+
+
+--
+-- Name: Activities__id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Activities__id_seq"', 31, true);
+
+
+--
+-- Name: Boards__id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Boards__id_seq"', 3, true);
+
+
+--
+-- Name: Cards__id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Cards__id_seq"', 18, true);
+
+
+--
+-- Name: Comments__id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Comments__id_seq"', 3, true);
+
+
+--
+-- Name: Lists__id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Lists__id_seq"', 9, true);
+
+
+--
+-- Name: Users__id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."Users__id_seq"', 4, true);
+
+
+--
+-- Name: Activities Activities_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Activities"
+    ADD CONSTRAINT "Activities_pkey" PRIMARY KEY (_id);
+
+
+--
+-- Name: Boards Boards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Boards"
+    ADD CONSTRAINT "Boards_pkey" PRIMARY KEY (_id);
+
+
+--
+-- Name: Cards Cards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Cards"
+    ADD CONSTRAINT "Cards_pkey" PRIMARY KEY (_id);
+
+
+--
+-- Name: Comments Comments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Comments"
+    ADD CONSTRAINT "Comments_pkey" PRIMARY KEY (_id);
+
+
+--
+-- Name: Lists Lists_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Lists"
+    ADD CONSTRAINT "Lists_pkey" PRIMARY KEY (_id);
+
+
+--
+-- Name: Users Users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_email_key" UNIQUE (email);
+
+
+--
+-- Name: Users Users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_pkey" PRIMARY KEY (_id);
+
+
+--
+-- Name: Activities Activities_author_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Activities"
+    ADD CONSTRAINT "Activities_author_fkey" FOREIGN KEY (author) REFERENCES public."Users"(_id) ON UPDATE CASCADE;
+
+
+--
+-- Name: Activities Activities_board_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Activities"
+    ADD CONSTRAINT "Activities_board_fkey" FOREIGN KEY (board) REFERENCES public."Boards"(_id) ON DELETE CASCADE;
+
+
+--
+-- Name: Activities Activities_card_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Activities"
+    ADD CONSTRAINT "Activities_card_fkey" FOREIGN KEY (card) REFERENCES public."Cards"(_id) ON DELETE CASCADE;
+
+
+--
+-- Name: Boards Boards_author_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Boards"
+    ADD CONSTRAINT "Boards_author_fkey" FOREIGN KEY (author) REFERENCES public."Users"(_id);
+
+
+--
+-- Name: Cards Cards_author_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Cards"
+    ADD CONSTRAINT "Cards_author_fkey" FOREIGN KEY (author) REFERENCES public."Users"(_id) ON DELETE CASCADE;
+
+
+--
+-- Name: Cards Cards_board_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Cards"
+    ADD CONSTRAINT "Cards_board_fkey" FOREIGN KEY (board) REFERENCES public."Boards"(_id) ON DELETE CASCADE;
+
+
+--
+-- Name: Cards Cards_list_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Cards"
+    ADD CONSTRAINT "Cards_list_fkey" FOREIGN KEY (list) REFERENCES public."Lists"(_id) ON DELETE CASCADE;
+
+
+--
+-- Name: Comments Comments_author_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Comments"
+    ADD CONSTRAINT "Comments_author_fkey" FOREIGN KEY (author) REFERENCES public."Users"(_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: Comments Comments_card_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Comments"
+    ADD CONSTRAINT "Comments_card_fkey" FOREIGN KEY (card) REFERENCES public."Cards"(_id) ON DELETE CASCADE;
+
+
+--
+-- Name: Lists Lists_author_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Lists"
+    ADD CONSTRAINT "Lists_author_fkey" FOREIGN KEY (author) REFERENCES public."Users"(_id);
+
+
+--
+-- Name: Lists Lists_board_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Lists"
+    ADD CONSTRAINT "Lists_board_fkey" FOREIGN KEY (board) REFERENCES public."Boards"(_id) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

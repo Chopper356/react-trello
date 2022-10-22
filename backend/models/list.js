@@ -1,28 +1,38 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require("../database");
 
-const ListSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
+const User = require("./user");
+const Board = require("./board");
+
+const List = sequelize.define('List', {
+  _id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false
   },
-  board: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "board"
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   author: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "user"
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: "_id"
+    }
   },
-  cards: [{
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "card"
-  }],
-  color: {
-    type: String
+  board: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Board,
+      key: "_id"
+    },
+    onDelete: "cascade"
   }
-}, { versionKey: false })
+});
 
-module.exports = mongoose.model('list', ListSchema);
+
+module.exports = List;

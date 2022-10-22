@@ -1,9 +1,10 @@
+const { Op } = require("sequelize");
 const User = require("../models/user");
 
 module.exports = {
 	async getUserData(req, res) {
 		try {
-			const user = await User.findOne({ _id: req.user });
+			const user = await User.findOne({ where: { _id: req.user } });
 
 			if (!user) {
 				return res.status(500).send({ error: "User is not defined!" });
@@ -16,12 +17,18 @@ module.exports = {
 	},
 	async getSearchedUsers(req, res) {
 		try {
-			const name = new RegExp(req.body.name, "gi");
-			const users = await User.find({ name });
+			const users = await User.findAll({
+				where: {
+					name: {
+						[Op.iLike]: `%${req.body.name}%`
+					}
+				}
+			});
 
 			res.send(users);
 		}
 		catch (error) {
+			console.log(error)
 			res.status(500).send({ error: "Server error!" });
 		}
 	},

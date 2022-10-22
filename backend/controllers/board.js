@@ -45,15 +45,19 @@ module.exports = {
 
   async delete(req, res) {
     try {
-      await Promise.all([
-        Board.findOneAndRemove({ _id: req.params.id }),
-        List.deleteMany({ board: req.params.id }),
-        Card.deleteMany({ board: req.params.id })
-      ]);
+      // await Promise.all([
+      //   Board.findOneAndRemove({ _id: req.params.id }),
+      //   List.deleteMany({ board: req.params.id }),
+      //   Card.deleteMany({ board: req.params.id })
+      // ]);
+      // await List.destroy({ where: { board: req.params.id } });
+
+      await Board.destroy({ where: { _id: req.params.id }, cascade: true });
 
       res.end();
     }
     catch (error) {
+      console.log(error)
       res.status(500).send({ error: "Server error!" });
     }
   },
@@ -62,41 +66,49 @@ module.exports = {
     try {
       const data = req.body;
 
-      const new_data = await Board.findOneAndUpdate({ _id: req.params.id }, { title: data.title }, { new: true });
+      const new_data = await Board.update({ title: data.title }, { where: { _id: req.params.id } });
 
       res.send(new_data);
     }
     catch (error) {
+      console.log(error)
       res.status(500).send({ error: "Server error!" });
     }
   },
 
   async all(req, res) {
     try {
-      const boards = await Board.find({});
+      const boards = await Board.findAll();
 
       res.send(boards);
     }
     catch (error) {
+      console.log(error)
       res.status(500).send({ error: "Server error!" });
     }
   },
 
   async getBoardData(req, res) {
     try {
-      const board = await Board.findOne({ _id: req.params.id });
-      if (req.user !== board.author.toString() && !board.members.some(member => member._id.toString() === req.user)) {
+      const data = await Board.findOne({ where: { _id: req.params.id } });
+      const board = data.dataValues;
+
+      if (req.user !== board.author && !board.members.some(member => member === req.user)) {
         return res.status(403).end();
       }
 
-      const lists = await List.find({ board: req.params.id }).lean();
-      for (let list of lists) {
-        list.cards = await Card.find({ list: list._id }).sort({ index: 1 });
-      }
+      const listsData = await List.findAll({ where: { board: req.params.id } });
+      const lists = [];
 
+      listsData.forEach((list) => lists.push(list.dataValues));
+
+      for (let list of lists) {
+        list.cards = await Card.findAll({ where: { list: list._id }, order: ["index"] });
+      }
       res.send({ board, lists });
     }
     catch (error) {
+      console.log(error)
       res.status(500).send({ error: "Server error!" });
     }
   },
@@ -104,9 +116,8 @@ module.exports = {
   async changeMembers(req, res) {
     try {
       const new_members = req.body;
-      const new_data = await Board.findOneAndUpdate({ _id: req.params.id }, { members: new_members }, { new: true });
-
-      res.send(new_data);
+      const [, new_data] = await Board.update({ members: new_members.map(item => item._id) }, { where: { _id: req.params.id }, returning: true });
+      res.send(new_data[0]);
     }
     catch (error) {
       console.log(error)

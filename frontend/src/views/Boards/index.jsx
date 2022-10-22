@@ -40,7 +40,7 @@ function Boards() {
       if (board.members.some((member) => member === user._id)) {
         navigate(`/boards/${board._id}`);
       } else {
-        notification({ title: "Access Denied!", text: "Login denied, request access from creator", type: "error" });
+        notification({ title: "Access Denied!", text: "Request access from creator", type: "error" });
       }
     } else {
       navigate(`/boards/${board._id}`);

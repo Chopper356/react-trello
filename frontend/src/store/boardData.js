@@ -5,28 +5,28 @@ import { ApiUrls } from "../constants";
 /// Board Services
 
 export const getBoard = createAsyncThunk(
-  "boards/getBoard",
+  "board/getBoard",
   async function (id) {
     return await instance.get(ApiUrls.board.data + id);
   }
 );
 
 export const editBoard = createAsyncThunk(
-  "boards/editBoard",
+  "board/editBoard",
   async function ({ id, title }) {
     return await instance.post(ApiUrls.board.edit + id, { title });
   }
 );
 
 export const deleteBoard = createAsyncThunk(
-  "boards/deleteBoard",
+  "board/deleteBoard",
   async function (id) {
     return await instance.delete(ApiUrls.board.delete + id);
   }
 );
 
 export const changeMembers = createAsyncThunk(
-  "boards/changeMembers",
+  "board/changeMembers",
   async function ({ id, users }) {
     return await instance.put(ApiUrls.board.changeMembers + id, users);
   }
@@ -35,21 +35,21 @@ export const changeMembers = createAsyncThunk(
 /// Lists Services
 
 export const editList = createAsyncThunk(
-  "boards/editList",
+  "board/editList",
   async function ({ id, title }) {
     return await instance.post(ApiUrls.task.edit + id, { title });
   }
 );
 
 export const deleteList = createAsyncThunk(
-  "boards/deleteList",
+  "board/deleteList",
   async function (id) {
     return await instance.delete(ApiUrls.task.delete + id);
   }
 );
 
 export const createList = createAsyncThunk(
-  "boards/createList",
+  "board/createList",
   async function (data) {
     return await instance.post(ApiUrls.task.create, data);
   }
@@ -58,28 +58,28 @@ export const createList = createAsyncThunk(
 /// Cards Services
 
 export const createCard = createAsyncThunk(
-  "boards/createCard",
+  "board/createCard",
   async function (data) {
     return await instance.post(ApiUrls.card.create, data);
   }
 );
 
 export const editCard = createAsyncThunk(
-  "boards/editCard",
+  "board/editCard",
   async function ({ id, data }) {
     return await instance.post(ApiUrls.card.edit + id, data);
   }
 );
 
 export const deleteCard = createAsyncThunk(
-  "boards/deleteCard",
+  "board/deleteCard",
   async function (data) {
     return await instance.delete(ApiUrls.card.delete + data._id);
   }
 );
 
 export const moveCard = createAsyncThunk(
-  "boards/moveCard",
+  "board/moveCard",
   async function ({ listIdFrom, listIdTo, data }) {
     return await instance.post(`${ApiUrls.card.move + listIdFrom}/${listIdTo}`, data);
   }
@@ -110,11 +110,12 @@ export const board = createSlice({
     },
 
     [changeMembers.fulfilled]: (state, action) => {
+      console.log(action)
       state.members = action.payload.data.members;
     },
 
     [editBoard.fulfilled]: (state, action) => {
-      state.title = action.payload.data.title;
+      state.title = action.meta.arg.title;
     },
 
     /// List extra reducers
@@ -133,6 +134,7 @@ export const board = createSlice({
     },
 
     [createList.fulfilled]: (state, action) => {
+      console.log(action.payload)
       state.lists.push(action.payload.data);
     },
 
@@ -144,25 +146,26 @@ export const board = createSlice({
     },
 
     [editCard.fulfilled]: (state, action) => {
+      console.log(action)
       const listidx = state.lists.findIndex((item) => item._id === action.payload.data.list);
       const cardidx = state.lists[listidx].cards.findIndex((item) => item._id === action.payload.data._id);
+
+      console.log(listidx, cardidx)
 
       state.lists[listidx].cards[cardidx] = action.payload.data;
     },
 
     [deleteCard.fulfilled]: (state, action) => {
       const listidx = state.lists.findIndex((item) => item._id === action.meta.arg.list);
-      const cardidx = state.lists[listidx].cards.findIndex((item) => item._id === action.payload.data.id);
+      const cardidx = state.lists[listidx].cards.findIndex((item) => item._id.toString() === action.payload.data.id);
 
       state.lists[listidx].cards.splice(cardidx, 1);
       state.lists[listidx].cards.forEach(card => card.index > action.meta.arg.index ? card.index -= 1 : null);
     },
 
-    [moveCard.fulfilled]: (state, action) => {
-      console.log(action)
-
-      const movedFromIdx = state.lists.findIndex((item) => item._id === action.meta.arg.listIdFrom);
-      const movedToIdx = state.lists.findIndex((item) => item._id === action.meta.arg.listIdTo);
+    [moveCard.pending]: (state, action) => {
+      const movedFromIdx = state.lists.findIndex((item) => item._id.toString() === action.meta.arg.listIdFrom);
+      const movedToIdx = state.lists.findIndex((item) => item._id.toString() === action.meta.arg.listIdTo);
 
       const cardFromIdx = action.meta.arg.data.indexFrom;
       const cardToIdx = action.meta.arg.data.indexTo;

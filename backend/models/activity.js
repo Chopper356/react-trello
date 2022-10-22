@@ -1,27 +1,50 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require("../database");
 
-const ActivitySchema = new mongoose.Schema({
+const Board = require("./board");
+const Card = require("./card");
+const User = require('./user');
+
+const Activity = sequelize.define('Activity', {
   action: {
-    type: String,
+    type: DataTypes.STRING,
     required: true
   },
+  _id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false
+  },
   author: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "user"
+    type: DataTypes.INTEGER,
+    references: {
+      model: User,
+      key: "_id"
+    }
   },
   board: {
-    type: mongoose.Types.ObjectId,
-    ref: "board"
+    type: DataTypes.INTEGER,
+    references: {
+      model: Board,
+      key: "_id"
+    },
+    onDelete: "cascade"
   },
   card: {
-    type: mongoose.Types.ObjectId,
-    ref: "card"
+    type: DataTypes.INTEGER,
+    references: {
+      model: Card,
+      key: "_id",
+    },
+    onDelete: "cascade"
   },
   date: {
-    type: Date,
-    default: () => new Date()
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
   },
-}, { versionKey: false })
+});
 
-module.exports = mongoose.model('activity', ActivitySchema);
+Activity.belongsTo(User, { foreignKey: "author", as: "user" });
+
+module.exports = Activity;

@@ -1,32 +1,55 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require("../database");
 
-const CardSchema = new mongoose.Schema({
+const User = require("./user");
+const Board = require("./board");
+const List = require("./List");
+
+const Card = sequelize.define('Card', {
+  _id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false
+  },
   title: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
   description: {
-    type: String,
+    type: DataTypes.STRING
   },
   index: {
-    type: Number,
-    required: true
-  },
-  list: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "list"
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   author: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "user"
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: "_id"
+    },
+    onDelete: "cascade"
   },
   board: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: "board"
-  }
-}, { versionKey: false })
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Board,
+      key: "_id"
+    },
+    onDelete: "cascade"
+  },
+  list: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: List,
+      key: "_id"
+    },
+    onDelete: "cascade"
+  },
+});
 
-module.exports = mongoose.model('card', CardSchema);
+module.exports = Card;
