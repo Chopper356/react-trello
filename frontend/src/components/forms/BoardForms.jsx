@@ -38,20 +38,35 @@ export const ChangeMembers = ({ onClose }) => {
     }, 200);
   }
 
-  const selectUser = (event, userId) => {
+  const selectUser = useCallback((event, userId) => {
     const new_users = [...users];
     const idx = new_users.findIndex((item) => item._id === userId);
     new_users[idx].selected = event.target.checked;
     setUsers(new_users);
-  }
+  }, [users, setUsers]);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     const selectedUsers = users.filter((item) => item.selected);
     dispatch(changeMembers({ id, users: selectedUsers }));
     await ActivityService.create({ action: `${userData.name} changed members`, author: userData._id, board: id });
     onClose();
     notification({ title: "Change board members!", text: "You have successfully changed board members", type: "successfull" });
-  }
+  }, [dispatch, notification, onClose, users, userData._id, userData.name, id]);
+
+  const usersRender = useCallback((user) => {
+    return (
+      user._id !== board.author ? <Form.Check className="members-checkbox d-flex align-items-center" key={user._id}>
+        <Form.Check.Input
+          type="checkbox" className="me-3 ms-0"
+          checked={user.selected}
+          onChange={(event) => selectUser(event, user._id)}
+        />
+
+        <Avatar name={user.name} bgcolor="#0078BD" color="white" />
+        <Form.Check.Label className="me-3 ms-2">{user.name}</Form.Check.Label>
+      </Form.Check> : null
+    )
+  }, [board, selectUser]);
 
   return (
     <ModalForm
@@ -69,22 +84,7 @@ export const ChangeMembers = ({ onClose }) => {
             onChange={(event) => searchUsers(event.target.value)}
           />
 
-          {
-            users.map((user) => {
-              return (
-                user._id !== board.author ? <Form.Check className="members-checkbox d-flex align-items-center" key={user._id}>
-                  <Form.Check.Input
-                    type="checkbox" className="me-3 ms-0"
-                    checked={user.selected}
-                    onChange={(event) => selectUser(event, user._id)}
-                  />
-
-                  <Avatar name={user.name} bgcolor="#0078BD" color="white" />
-                  <Form.Check.Label className="me-3 ms-2">{user.name}</Form.Check.Label>
-                </Form.Check> : null
-              )
-            })
-          }
+          {users.map(usersRender)}
 
         </Form.Group>
       </Modal.Body>
@@ -108,11 +108,11 @@ export const EditBoard = ({ onClose }) => {
     dispatch(setNotification(obj));
   }, [dispatch]);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     dispatch(editBoard({ id: board._id, title: changedTitle }));
     onClose();
     notification({ title: "Edit board!", text: "You have successfully edited this board", type: "successfull" });
-  }
+  }, [dispatch, onClose, notification, board._id, changedTitle]);
 
   return (
     <ModalForm
@@ -152,12 +152,12 @@ export const DeleteBoard = ({ onClose }) => {
     dispatch(setNotification(obj));
   }, [dispatch]);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     dispatch(deleteBoard(board._id));
     onClose();
     navigate("/boards");
     notification({ title: "Board deleted!", text: "You have successfully deleted board", type: "successfull" });
-  }
+  }, [dispatch, onClose, navigate, notification, board._id]);
 
   return (
     <ModalForm

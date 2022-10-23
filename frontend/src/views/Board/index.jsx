@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useParams } from 'react-router-dom'
 import { useSelector, useDispatch } from "react-redux";
 
@@ -18,7 +18,6 @@ import { getBoard, createList, moveCard } from "../../store/boardData";
 function Board() {
   const userData = useSelector((state) => state.user);
   const { id } = useParams();
-  // const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const board = useSelector((state) => state.board);
@@ -70,6 +69,10 @@ function Board() {
 
   }, [lists, userData, board._id, dispatch, notification]);
 
+  const emptyRender = useMemo(() => (
+    lists.length <= 0 ? <div className={classNames(styles.lists_empty, "mt-5")}>Nothing here yet 🙁</div> : null
+  ), [lists]);
+
   return (
     <div className={classNames(styles.board_page)}>
       {modal === "activity" && <BoardActivityMenu onClose={() => setModal(null)} board={board} />}
@@ -105,7 +108,7 @@ function Board() {
                           <span className="fw-bold">{list.title}</span>
 
                           <Menu icon={true}>
-                            <span className="dropdown-menu-item" onClick={() => { setSelectedList(list._id); setModal('edit list') }}>Edit List</span>
+                            <span className="dropdown-menu-item" onClick={() => { setSelectedList(list._id); setModal('edit list') }}>Edit List</span>  {/*TO-DO useCallBack*/}
                             <span className="dropdown-menu-item" onClick={() => { setSelectedList(list._id); setModal('delete list') }}>Delete List</span>
                           </Menu>
                         </div>
@@ -147,7 +150,7 @@ function Board() {
                 </form>
               </div>
             </div>
-            {lists.length <= 0 ? <div className={classNames(styles.lists_empty, "mt-5")}>Nothing here yet 🙁</div> : null}
+            {emptyRender}
           </div>
         </DragDropContext>
 

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -19,13 +19,12 @@ function CardCreator({ list, addCard }) {
     setCardTitle(value);
   };
 
-  const createBoardCard = async (e) => {
+  const createBoardCard = useCallback(async (e) => {
     e.preventDefault();
-    // const card = await CardsService.create({ title: cardTitle, list: list._id, board: id, author: userData._id });
     dispatch(createCard({ title: cardTitle, list: list._id, board: id, author: userData._id }));
     await ActivityService.create({ action: `Create card ${cardTitle} in list ${list.title}`, author: userData._id, board: id });
     setCardTitle("");
-  }
+  }, [dispatch, setCardTitle, cardTitle, list._id, id, userData._id, list.title]);
 
   return (
     <div className={classNames(styles.task_footer)}>

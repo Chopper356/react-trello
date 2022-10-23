@@ -13,7 +13,7 @@ services:
     ports:
       - 3001:3001 
     depends_on:
-      - mongo
+      - trello_postgres
   trello_frontend:
     command: npm start
     container_name: trello_frontend
@@ -23,11 +23,15 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000 
-  mongo:
-    image: mongo
+  trello_postgres:
+    container_name: trello_postgres
+    image: postgres:14
     restart: always
-    volumes:
-      - ./data:/data/db
     ports:
-      - 27017:27017 
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: password123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - /data:/var/lib/postgresql/data
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -15,10 +15,10 @@ export const EditBoard = ({ onClose }) => {
   const board = items.find((item) => item._id === selected._id);
   const [editValues, setEditValues] = useState({ title: board.title });
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     dispatch(editBoard({ id: board._id, title: editValues.title }))
     onClose();
-  }
+  }, [dispatch, onClose, editValues.title, board._id]);
 
   return (
     <ModalForm
@@ -55,11 +55,11 @@ export const DeleteBoard = ({ onClose }) => {
   const { items, selected } = useSelector((state) => state.boards);
   const board = items.find((item) => item._id === selected._id);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     onClose();
     dispatch(deleteBoard(board._id));
     navigate("/boards");
-  }
+  }, [onClose, dispatch, navigate, board._id]);
 
   return (
     <ModalForm

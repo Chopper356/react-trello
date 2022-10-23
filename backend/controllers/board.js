@@ -45,13 +45,6 @@ module.exports = {
 
   async delete(req, res) {
     try {
-      // await Promise.all([
-      //   Board.findOneAndRemove({ _id: req.params.id }),
-      //   List.deleteMany({ board: req.params.id }),
-      //   Card.deleteMany({ board: req.params.id })
-      // ]);
-      // await List.destroy({ where: { board: req.params.id } });
-
       await Board.destroy({ where: { _id: req.params.id }, cascade: true });
 
       res.end();
@@ -97,7 +90,7 @@ module.exports = {
         return res.status(403).end();
       }
 
-      const listsData = await List.findAll({ where: { board: req.params.id } });
+      const listsData = await List.findAll({ where: { board: req.params.id }, order: ["_id"] });
       const lists = [];
 
       listsData.forEach((list) => lists.push(list.dataValues));

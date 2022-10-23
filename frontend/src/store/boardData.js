@@ -110,7 +110,6 @@ export const board = createSlice({
     },
 
     [changeMembers.fulfilled]: (state, action) => {
-      console.log(action)
       state.members = action.payload.data.members;
     },
 
@@ -128,13 +127,12 @@ export const board = createSlice({
     },
 
     [deleteList.fulfilled]: (state, action) => {
-      const idx = state.lists.findIndex((item) => item._id === action.payload.data.deleted_id);
+      const idx = state.lists.findIndex((item) => item._id.toString() === action.payload.data.deleted_id);
 
       state.lists.splice(idx, 1);
     },
 
     [createList.fulfilled]: (state, action) => {
-      console.log(action.payload)
       state.lists.push(action.payload.data);
     },
 
@@ -146,11 +144,8 @@ export const board = createSlice({
     },
 
     [editCard.fulfilled]: (state, action) => {
-      console.log(action)
       const listidx = state.lists.findIndex((item) => item._id === action.payload.data.list);
       const cardidx = state.lists[listidx].cards.findIndex((item) => item._id === action.payload.data._id);
-
-      console.log(listidx, cardidx)
 
       state.lists[listidx].cards[cardidx] = action.payload.data;
     },
@@ -177,7 +172,5 @@ export const board = createSlice({
     },
   },
 })
-
-// export const { } = board.actions;
 
 export default board.reducer

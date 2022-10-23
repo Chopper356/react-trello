@@ -1,19 +1,25 @@
+import classNames from "classnames";
 import { useState, useEffect, useCallback } from "react";
 import dayjs from "dayjs";
 import "../styles/board-activity-menu.scss";
 
 import ActivityService from "../lib/ActivityService";
 
-function BoardActivityMenu(props) {
+function BoardActivityMenu({ board, onClose }) {
   const [showMenu, setShowMenu] = useState(false);
   const [activity, setActivity] = useState([]);
   useEffect(() => {
     setShowMenu(true);
     const BoardActivity = async () => {
-      setActivity(await ActivityService.boardActivity(props.board._id))
+      setActivity(await ActivityService.boardActivity(board._id))
     }
     BoardActivity();
-  }, [props.board])
+  }, [board]);
+
+  const closeActivityMenu = useCallback(() => {
+    setShowMenu(false);
+    onClose();
+  }, [setShowMenu, onClose]);
 
   const activityRender = useCallback(({ author, action, date, _id }) => (
     <div className="item" key={_id}>
@@ -26,14 +32,14 @@ function BoardActivityMenu(props) {
   ), []);
 
   return (
-    <div className={`board-activity-menu ${showMenu ? 'show' : ''}`}>
+    <div className={classNames("board-activity-menu", { "show": showMenu })}>
       <div className="menu-header d-flex justify-content-between align-items-center">
         <div className="title">
           <i className="far fa-align-center fix-width fs-4"></i>
           <span className="fs-5 ms-3">Activity</span>
         </div>
 
-        <i className="fal fa-times fs-4" onClick={() => { setShowMenu(false); props.onClose() }}></i>
+        <i className="fal fa-times fs-4" onClick={closeActivityMenu}></i>
       </div>
 
       <div className="content">

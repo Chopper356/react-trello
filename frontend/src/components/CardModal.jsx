@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
@@ -29,17 +29,17 @@ function CardModal({ listId, cardId, show, onClose }) {
   const [comment, setComment] = useState("");
   const [activity, setActivity] = useState([]);
 
-  const descriptionSave = async () => {
+  const descriptionSave = useCallback(async () => {
     dispatch(editCard({ id: card._id, data: { title: card.title, description: editValues.description } }))
     setEditDesc(false);
     setActivity([...activity, await ActivityService.create({ action: `Edit ${card.title} description`, author: userData._id, card: card._id })]);
-  };
+  }, [dispatch, setEditDesc, setActivity, card._id, card.title, editValues.description, userData._id, activity]);
 
-  const sendComment = async () => {
+  const sendComment = useCallback(async () => {
     const new_comment = await CommentService.create({ author: userData._id, card: card._id, list: card.list, content: comment });
 
     setComments([...comments, new_comment]);
-  };
+  }, [setComments, userData._id, comments, card._id, card.list, comment]);
 
   useEffect(() => {
     const cardInfo = async () => {
@@ -47,13 +47,12 @@ function CardModal({ listId, cardId, show, onClose }) {
       setActivity(await ActivityService.cardActivity(id, card._id));
     }
     cardInfo();
-    console.log(activity)
   }, [card._id, id]);
 
-  const cardDelete = async () => {
+  const cardDelete = useCallback(async () => {
     onClose();
     dispatch(deleteCard(card));
-  }
+  }, [onClose, dispatch, card]);
 
   const deleteComment = async (id) => {
     await CommentService.delete(id);

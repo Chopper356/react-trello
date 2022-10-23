@@ -1,25 +1,25 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import "../styles/modal.scss";
 import { createBoard } from "../store/boardsData";
 import { setNotification } from "../store/notificationData"
 
-function CreateBoard(props) {
+function CreateBoard({ show, onHide }) {
   const [board, setBoard] = useState({ title: "", image: null });
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
 
-  const boardCreate = async (event) => {
+  const boardCreate = useCallback(async (event) => {
     event.preventDefault();
 
-    props.onHide(false);
+    onHide(false);
     dispatch(createBoard(board));
     dispatch(setNotification({ title: "Successfull!", text: "Board created successfully", type: "successfull" }));
-  }
+  }, [onHide, dispatch, board]);
 
   const checkImageSize = (event) => {
     const file = event.target.files[0];
@@ -36,8 +36,8 @@ function CreateBoard(props) {
 
   return (
     <Modal
-      show={props.show}
-      onHide={props.onHide}
+      show={show}
+      onHide={onHide}
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
@@ -62,7 +62,7 @@ function CreateBoard(props) {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="danger" onClick={props.onHide}>Close</Button>
+          <Button variant="danger" onClick={onHide}>Close</Button>
           <Button type="submit">Submit</Button>
         </Modal.Footer>
       </Form>

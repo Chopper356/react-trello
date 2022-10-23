@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "../../styles/modal-form.scss";
 
@@ -17,11 +17,11 @@ export const EditList = ({ onClose, listId }) => {
 
   const [changedTitle, setChangedTitle] = useState(list.title);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     dispatch(editList({ id: list._id, title: changedTitle }));
     await ActivityService.create({ action: `${userData.name} edited list ${list.title}`, author: userData._id, board: list.board });
     onClose();
-  }
+  }, [dispatch, userData.name, userData._id, list._id, list.board, list.title, changedTitle, onClose]);
 
   return (
     <ModalForm
@@ -58,11 +58,11 @@ export const DeleteList = ({ onClose, listId }) => {
   const lists = useSelector((state) => state.board.lists);
   const list = lists.find((item) => item._id === listId);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     onClose();
     dispatch(deleteList(list._id));
     await ActivityService.create({ action: `${userData.name} deleted list ${list.title}`, author: userData._id, board: list.board });
-  }
+  }, [onClose, dispatch, userData.name, list.title, list._id, userData._id, list.board]);
 
   return (
     <ModalForm

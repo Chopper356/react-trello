@@ -1,7 +1,7 @@
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import classNames from "classnames";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
@@ -69,6 +69,10 @@ function Boards() {
     </div>
   ), [user._id, checkLink, checkAccess, dispatch]);
 
+  const myBoards = useMemo(() => (
+    boards.filter((item) => item.author === user._id)
+  ), [boards, user]);
+
   return (
     <div className={classNames(styles.boards_tab, "mt-5")}>
       {modal === "edit" && <EditBoard onClose={() => setModal(null)} />}
@@ -101,7 +105,7 @@ function Boards() {
         <Tab eventKey="profile" title="My Boards">
           <div className={classNames(styles.boards)}>
             <div className={classNames(styles.row, "row justify-content-start")}>
-              {boards.filter((item) => item.author === user._id).map(renderBoards)}
+              {myBoards.map(renderBoards)}
               <div className='col-sm-4 mb-2' onClick={() => setModalShow(true)}>
                 <div className={classNames(styles.board, styles.create_board)}>
                   <div>Create new board...</div>

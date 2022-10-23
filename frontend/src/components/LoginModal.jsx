@@ -3,7 +3,7 @@ import Modal from "react-bootstrap/Modal";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Form from "react-bootstrap/Form";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setToken, getUser } from "../store/userData";
 
@@ -33,7 +33,7 @@ function LoginModal(props) {
     }));
   };
 
-  const signIn = async (event) => {
+  const signIn = useCallback(async (event) => {
     event.preventDefault();
     const { data } = await AuthService.signIn(modalLogin);
 
@@ -41,9 +41,9 @@ function LoginModal(props) {
     dispatch(getUser());
     setModalTitle("SignIn");
     props.onHide();
-  };
+  }, [modalLogin, dispatch, setModalTitle, props]);
 
-  const signUp = async (event) => {
+  const signUp = useCallback(async (event) => {
     event.preventDefault();
     const { data } = await AuthService.signUp(modalReg);
 
@@ -51,7 +51,7 @@ function LoginModal(props) {
     dispatch(getUser());
     setModalTitle("SignIn");
     props.onHide();
-  };
+  }, [modalReg, dispatch, setModalTitle, props]);
 
   return (
     <Modal
